@@ -39,13 +39,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Bind core event listeners
   bindEvents();
 
-  // Populate dynamic UI items
-  initializeFilters();
-  renderTrendingHome();
+  // Load products from database with local fallback
+  loadProductsFromBackend().then(() => {
+    // Populate dynamic UI items after products are loaded
+    initializeFilters();
+    renderTrendingHome();
+    updateBadges();
+  });
 
   // Show page
   navigateTo('home');
-  updateBadges();
 });
 
 // LOAD LOCALSTORAGE
@@ -286,6 +289,8 @@ function navigateTo(pageId) {
     renderOrders();
   } else if (pageId === 'profile') {
     populateProfileForm();
+  } else if (pageId === 'admin') {
+    checkAdminAuthentication();
   }
 
   // Scroll to top of window
@@ -1020,6 +1025,9 @@ function processCheckout() {
     status: "Processing"
   };
 
+  if (backendAvailable) {
+    postOrderToBackend(newOrder);
+  }
   orders.unshift(newOrder); // Add to beginning of list
   saveOrders();
 
@@ -1428,5 +1436,489 @@ function renderRelatedProducts(currProduct) {
         </div>
       `;
     }).join('');
+  }
+}
+
+// =========================================================================
+// BACKEND SYNC & ADMIN PANEL FUNCTIONS
+// =========================================================================
+
+let adminToken = sessionStorage.getItem("fwh_admin_token") || null;
+let adminActiveTab = "stats";
+let backendAvailable = false;
+
+// Load products from backend with local fallback
+async function loadProductsFromBackend() {
+  try {
+    const res = await fetch("/api/products");
+    if (!res.ok) throw new Error("HTTP error " + res.status);
+    const data = await res.json();
+    if (data && data.length > 0) {
+      PRODUCTS = data;
+      backendAvailable = true;
+      console.log("✅ Loaded products from backend database. Count:", PRODUCTS.length);
+      const dbBadge = document.getElementById("db-status-badge");
+      if (dbBadge) {
+        dbBadge.textContent = "Connected";
+        dbBadge.className = "badge-status delivered";
+        dbBadge.style.background = "rgba(46,204,113,0.15)";
+        dbBadge.style.color = "#2ecc71";
+      }
+    }
+  } catch (error) {
+    console.warn("⚠️ Could not load products from backend. Falling back to local data.", error);
+    backendAvailable = false;
+    const dbBadge = document.getElementById("db-status-badge");
+    if (dbBadge) {
+      dbBadge.textContent = "Offline (Local Fallback)";
+      dbBadge.className = "badge-status cancelled";
+      dbBadge.style.background = "rgba(231,76,60,0.15)";
+      dbBadge.style.color = "#e74c3c";
+    }
+  }
+  const syncTimeEl = document.getElementById("last-sync-time");
+  if (syncTimeEl) {
+    syncTimeEl.textContent = new Date().toLocaleTimeString();
+  }
+}
+
+// Check admin session and render UI
+function checkAdminAuthentication() {
+  const loginCard = document.getElementById('admin-login-card');
+  const dashboardPanel = document.getElementById('admin-dashboard-panel');
+  if (adminToken) {
+    loginCard.style.display = 'none';
+    dashboardPanel.style.display = 'block';
+    loadAdminDashboardData();
+  } else {
+    loginCard.style.display = 'block';
+    dashboardPanel.style.display = 'none';
+  }
+}
+
+// Handle Admin Login submission
+async function handleAdminLogin(event) {
+  event.preventDefault();
+  const usernameInput = document.getElementById("admin-user-input").value;
+  const passwordInput = document.getElementById("admin-pass-input").value;
+
+  try {
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: usernameInput, password: passwordInput })
+    });
+    const data = await res.json();
+    if (data.success) {
+      adminToken = data.token;
+      sessionStorage.setItem("fwh_admin_token", adminToken);
+      showToast("Access Granted. Welcome Administrator!", "success");
+      checkAdminAuthentication();
+    } else {
+      showToast(data.message || "Invalid Credentials", "error");
+    }
+  } catch (error) {
+    showToast("Server Connection Failed", "error");
+  }
+}
+
+// Admin Logout
+function adminLogout() {
+  adminToken = null;
+  sessionStorage.removeItem("fwh_admin_token");
+  showToast("Logged out from Admin session", "success");
+  navigateTo("home");
+}
+
+// Switch between Admin Sub-tabs
+function switchAdminTab(tabName) {
+  adminActiveTab = tabName;
+  
+  // Update buttons active class
+  document.querySelectorAll(".admin-tab-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+  document.getElementById(`btn-admin-tab-${tabName}`).classList.add("active");
+
+  // Show/Hide sections
+  document.querySelectorAll(".admin-sub-tab-content").forEach(content => {
+    content.style.display = "none";
+  });
+  document.getElementById(`admin-tab-${tabName}`).style.display = "block";
+
+  // Reload tab specific data
+  if (tabName === "products") {
+    renderAdminProducts();
+  } else if (tabName === "orders") {
+    loadAdminOrders();
+  } else if (tabName === "stats") {
+    loadAdminStats();
+  }
+}
+
+// Load statistics
+async function loadAdminStats() {
+  const catSizeEl = document.getElementById("stat-catalog-size");
+  if (catSizeEl) catSizeEl.textContent = PRODUCTS.length;
+  
+  let totalRevenue = 0;
+  let totalOrders = 0;
+  
+  if (backendAvailable && adminToken) {
+    try {
+      const res = await fetch("/api/orders", {
+        headers: { "admin-secret": adminToken }
+      });
+      if (res.ok) {
+        const ordersList = await res.json();
+        totalOrders = ordersList.length;
+        totalRevenue = ordersList
+          .filter(o => o.status !== "Cancelled")
+          .reduce((sum, o) => sum + o.total, 0);
+      }
+    } catch (e) {
+      console.error("Failed to load stats from database, using local storage", e);
+    }
+  } else {
+    // Local fallback
+    totalOrders = orders.length;
+    totalRevenue = orders
+      .filter(o => o.status !== "Cancelled")
+      .reduce((sum, o) => sum + o.total, 0);
+  }
+
+  const totOrdersEl = document.getElementById("stat-total-orders");
+  const totRevEl = document.getElementById("stat-total-revenue");
+  if (totOrdersEl) totOrdersEl.textContent = totalOrders;
+  if (totRevEl) totRevEl.textContent = "₹" + totalRevenue.toLocaleString('en-IN');
+}
+
+// Render Products Table
+function renderAdminProducts() {
+  const tbody = document.getElementById("admin-products-table-body");
+  if (!tbody) return;
+
+  tbody.innerHTML = PRODUCTS.map(p => `
+    <tr>
+      <td><img src="${p.image}" class="admin-tbl-img" alt="${p.name}"></td>
+      <td>
+        <span class="admin-tbl-name">${p.name}</span>
+        <span class="admin-tbl-sub">ID: ${p.id} | ${p.subCategory}</span>
+      </td>
+      <td>${p.brand}</td>
+      <td style="text-transform: uppercase;">${p.category}</td>
+      <td style="font-weight: 700; color: var(--text-main);">₹${p.price.toLocaleString('en-IN')}</td>
+      <td>${p.discount}%</td>
+      <td>
+        ${p.trending ? '<span class="badge-status processing" style="font-size:0.7rem; padding:0.1rem 0.3rem;">Trending</span>' : ''}
+        ${p.newArrival ? '<span class="badge-status shipped" style="font-size:0.7rem; padding:0.1rem 0.3rem; margin-left:2px;">New</span>' : ''}
+        ${p.bestSeller ? '<span class="badge-status delivered" style="font-size:0.7rem; padding:0.1rem 0.3rem; margin-left:2px;">Best</span>' : ''}
+      </td>
+      <td>
+        <div style="display: flex; gap: 0.25rem;">
+          <button class="btn btn-secondary btn-sm" onclick="openEditProductModal('${p.id}')">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button class="btn btn-primary btn-sm" style="background-color: var(--primary);" onclick="deleteProduct('${p.id}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Load and render Admin Orders
+async function loadAdminOrders() {
+  const tbody = document.getElementById("admin-orders-table-body");
+  if (!tbody) return;
+
+  let ordersList = [];
+  if (backendAvailable && adminToken) {
+    try {
+      const res = await fetch("/api/orders", {
+        headers: { "admin-secret": adminToken }
+      });
+      if (res.ok) {
+        ordersList = await res.json();
+      } else {
+        ordersList = [...orders];
+      }
+    } catch (e) {
+      ordersList = [...orders];
+    }
+  } else {
+    ordersList = [...orders];
+  }
+
+  tbody.innerHTML = ordersList.map(o => {
+    const itemsSummary = o.items.map(item => `${item.name} (${item.qty}x)`).join(", ");
+    const badgeClass = o.status.toLowerCase();
+    
+    return `
+      <tr>
+        <td style="font-weight:700; color:var(--text-main);">${o.id}</td>
+        <td>${o.date}</td>
+        <td style="font-size: 0.8rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${itemsSummary}">
+          ${itemsSummary}
+        </td>
+        <td style="font-weight: 700; color: var(--text-main);">₹${o.total.toLocaleString('en-IN')}</td>
+        <td>
+          <span class="badge-status ${badgeClass}">${o.status}</span>
+        </td>
+        <td>
+          <select class="form-control-sm" onchange="updateOrderStatus('${o.id}', this.value)">
+            <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
+            <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+            <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+          </select>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Update Order Status
+async function updateOrderStatus(orderId, newStatus) {
+  if (backendAvailable && adminToken) {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "admin-secret": adminToken
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Order status updated to ${newStatus}`, "success");
+        loadAdminOrders();
+      } else {
+        showToast(data.message || "Failed to update status", "error");
+      }
+    } catch (error) {
+      showToast("Server Communication Error", "error");
+    }
+  } else {
+    // Local Update
+    const orderIndex = orders.findIndex(o => o.id === orderId);
+    if (orderIndex !== -1) {
+      orders[orderIndex].status = newStatus;
+      saveOrders();
+      showToast(`Local order status updated to ${newStatus}`, "success");
+      loadAdminOrders();
+    }
+  }
+}
+
+// Open modal for Adding Product
+function openAddProductModal() {
+  document.getElementById("admin-product-modal-title").textContent = "Add New Product";
+  document.getElementById("admin-product-form").reset();
+  document.getElementById("admin-form-id").value = "";
+  
+  document.getElementById("admin-product-modal").classList.add("active");
+}
+
+// Open modal for Editing Product
+function openEditProductModal(productId) {
+  const p = PRODUCTS.find(prod => prod.id === productId);
+  if (!p) return;
+
+  document.getElementById("admin-product-modal-title").textContent = "Edit Product: " + p.name;
+  document.getElementById("admin-form-id").value = p.id;
+  document.getElementById("admin-form-name").value = p.name;
+  document.getElementById("admin-form-brand").value = p.brand;
+  document.getElementById("admin-form-category").value = p.category;
+  document.getElementById("admin-form-subcategory").value = p.subCategory;
+  document.getElementById("admin-form-price").value = p.price;
+  document.getElementById("admin-form-discount").value = p.discount;
+  document.getElementById("admin-form-rating").value = p.rating;
+  document.getElementById("admin-form-image").value = p.image;
+  document.getElementById("admin-form-description").value = p.description;
+
+  // Format sizes: array [7, 8] to "7, 8"
+  document.getElementById("admin-form-sizes").value = p.sizes.join(", ");
+
+  // Format colors: [{name: "Red", hex: "#ff0000"}] to "Red:#ff0000"
+  const colorsStr = p.colors.map(c => `${c.name}:${c.hex}`).join(", ");
+  document.getElementById("admin-form-colors").value = colorsStr;
+
+  // Format occasions
+  document.getElementById("admin-form-occasions").value = p.occasions ? p.occasions.join(", ") : "";
+
+  // Flags
+  document.getElementById("admin-form-trending").checked = p.trending || false;
+  document.getElementById("admin-form-newarrival").checked = p.newArrival || false;
+  document.getElementById("admin-form-bestseller").checked = p.bestSeller || false;
+
+  document.getElementById("admin-product-modal").classList.add("active");
+}
+
+// Close Admin Product Modal
+function closeAdminProductModal() {
+  document.getElementById("admin-product-modal").classList.remove("active");
+}
+
+function closeAdminProductModalOnOverlay(event) {
+  if (event.target.id === "admin-product-modal") {
+    closeAdminProductModal();
+  }
+}
+
+// Handle Form Submission for Adding / Editing Product
+async function handleProductFormSubmit(event) {
+  event.preventDefault();
+  
+  if (!adminToken) {
+    showToast("Session expired, please login again", "error");
+    return;
+  }
+
+  const id = document.getElementById("admin-form-id").value;
+  const name = document.getElementById("admin-form-name").value;
+  const brand = document.getElementById("admin-form-brand").value;
+  const category = document.getElementById("admin-form-category").value;
+  const subCategory = document.getElementById("admin-form-subcategory").value;
+  const price = parseFloat(document.getElementById("admin-form-price").value);
+  const discount = parseInt(document.getElementById("admin-form-discount").value) || 0;
+  const rating = parseFloat(document.getElementById("admin-form-rating").value) || 4.5;
+  const image = document.getElementById("admin-form-image").value;
+  const description = document.getElementById("admin-form-description").value;
+
+  // Parse Sizes
+  const sizesRaw = document.getElementById("admin-form-sizes").value;
+  const sizes = sizesRaw.split(",").map(s => parseFloat(s.trim())).filter(s => !isNaN(s));
+
+  // Parse Colors (Name:Hex)
+  const colorsRaw = document.getElementById("admin-form-colors").value;
+  const colors = colorsRaw.split(",").map(c => {
+    const parts = c.split(":");
+    return {
+      name: parts[0]?.trim() || "Default",
+      hex: parts[1]?.trim() || "#000000"
+    };
+  });
+
+  // Parse Occasions
+  const occasionsRaw = document.getElementById("admin-form-occasions").value;
+  const occasions = occasionsRaw.split(",").map(o => o.trim()).filter(o => o !== "");
+
+  // Flags
+  const trending = document.getElementById("admin-form-trending").checked;
+  const newArrival = document.getElementById("admin-form-newarrival").checked;
+  const bestSeller = document.getElementById("admin-form-bestseller").checked;
+
+  const productData = {
+    name, brand, category, subCategory, price, discount, rating,
+    image, description, sizes, colors, occasions, trending, newArrival, bestSeller
+  };
+
+  const url = id ? `/api/products/${id}` : "/api/products";
+  const method = id ? "PUT" : "POST";
+
+  try {
+    const res = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+        "admin-secret": adminToken
+      },
+      body: JSON.stringify(productData)
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      showToast(id ? "Product updated successfully!" : "Product created successfully!", "success");
+      closeAdminProductModal();
+      
+      // Reload product data from server
+      await loadProductsFromBackend();
+      renderAdminProducts();
+      loadAdminStats();
+    } else {
+      showToast(data.message || "Failed to save product", "error");
+    }
+  } catch (error) {
+    showToast("Server Communication Error", "error");
+  }
+}
+
+// Delete Product
+async function deleteProduct(productId) {
+  if (!confirm("Are you sure you want to delete this product?")) return;
+
+  if (backendAvailable && adminToken) {
+    try {
+      const res = await fetch(`/api/products/${productId}`, {
+        method: "DELETE",
+        headers: { "admin-secret": adminToken }
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast("Product deleted successfully", "success");
+        await loadProductsFromBackend();
+        renderAdminProducts();
+        loadAdminStats();
+      } else {
+        showToast(data.message || "Failed to delete product", "error");
+      }
+    } catch (error) {
+      showToast("Server connection error", "error");
+    }
+  } else {
+    showToast("Delete is only available when backend is connected", "error");
+  }
+}
+
+// Post checkout order to backend
+async function postOrderToBackend(newOrder) {
+  try {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newOrder)
+    });
+    const data = await res.json();
+    if (data.success) {
+      console.log("✅ Order recorded in backend database:", data.order.id);
+    }
+  } catch (error) {
+    console.warn("⚠️ Could not POST order to backend database. Saved locally in localStorage.", error);
+  }
+}
+
+// Load statistics, products, and orders on dashboard opening
+function loadAdminDashboardData() {
+  loadAdminStats();
+  renderAdminProducts();
+  loadAdminOrders();
+}
+
+// One-click Sync button
+async function syncAdminData() {
+  showToast("Syncing data from backend database...", "info");
+  await loadProductsFromBackend();
+  loadAdminDashboardData();
+  showToast("Data sync complete", "success");
+}
+
+// Seeder Trigger
+async function seedDatabase() {
+  if (!confirm("This will seed initial products to database if empty. Proceed?")) return;
+  try {
+    const res = await fetch("/api/seed", { method: "POST" });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, "success");
+      await loadProductsFromBackend();
+      loadAdminDashboardData();
+    } else {
+      showToast(data.message || "Failed to seed", "error");
+    }
+  } catch (e) {
+    showToast("Server connection error", "error");
   }
 }

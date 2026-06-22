@@ -108,6 +108,7 @@
           <li><a href="#" class="nav-link" data-page="wishlist" onclick="navigateTo('wishlist'); return false;">Wishlist</a></li>
           <li><a href="#" class="nav-link" data-page="orders" onclick="navigateTo('orders'); return false;">Orders</a></li>
           <li><a href="#" class="nav-link" data-page="profile" onclick="navigateTo('profile'); return false;">Profile</a></li>
+          <li><a href="#" class="nav-link" data-page="admin" onclick="navigateTo('admin'); return false;">Admin</a></li>
         </ul>
       </div>
     </nav>
@@ -133,6 +134,7 @@
         <li><a href="#" class="drawer-link" data-page="wishlist" onclick="navigateTo('wishlist'); return false;"><i class="fa-solid fa-heart"></i> Wishlist</a></li>
         <li><a href="#" class="drawer-link" data-page="orders" onclick="navigateTo('orders'); return false;"><i class="fa-solid fa-clipboard-list"></i> My Orders</a></li>
         <li><a href="#" class="drawer-link" data-page="profile" onclick="navigateTo('profile'); return false;"><i class="fa-solid fa-user-gear"></i> My Profile</a></li>
+        <li><a href="#" class="drawer-link" data-page="admin" onclick="navigateTo('admin'); return false;"><i class="fa-solid fa-user-shield"></i> Admin Panel</a></li>
       </ul>
       <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-muted); text-align: center;">
         &copy; 2026 FootWear Hub.
@@ -453,6 +455,7 @@
                 <button class="profile-tab-btn active" onclick="switchProfileTab('details')"><i class="fa-solid fa-id-card"></i> Account Info</button>
                 <button class="profile-tab-btn" onclick="switchProfileTab('address')"><i class="fa-solid fa-map-location-dot"></i> Saved Addresses</button>
                 <button class="profile-tab-btn" onclick="switchProfileTab('settings')"><i class="fa-solid fa-sliders"></i> Settings</button>
+                <button class="profile-tab-btn" onclick="navigateTo('admin')" style="margin-top: 1rem; border-top: 1px dashed var(--border-light); color: var(--primary);"><i class="fa-solid fa-user-shield"></i> Admin Panel</button>
               </div>
             </aside>
 
@@ -561,6 +564,157 @@
           </div>
         </section>
 
+        <!-- 7. ADMIN PANEL PAGE VIEW -->
+        <section class="page-view" id="view-admin">
+          <!-- ADMIN LOGIN CARD -->
+          <div class="admin-login-card" id="admin-login-card">
+            <div class="login-header">
+              <i class="fa-solid fa-user-shield login-icon"></i>
+              <h3>Admin Access Control</h3>
+              <p>Please authenticate to access site management dashboards.</p>
+            </div>
+            <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+              <div class="form-group">
+                <label for="admin-user-input">Username</label>
+                <input type="text" id="admin-user-input" class="form-control" required placeholder="e.g. admin">
+              </div>
+              <div class="form-group">
+                <label for="admin-pass-input">Password</label>
+                <input type="password" id="admin-pass-input" class="form-control" required placeholder="••••••••">
+              </div>
+              <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem;">
+                <i class="fa-solid fa-lock-open"></i> Login to System
+              </button>
+            </form>
+          </div>
+
+          <!-- ADMIN DASHBOARD PANEL -->
+          <div class="admin-dashboard-panel" id="admin-dashboard-panel" style="display: none;">
+            <div class="admin-dashboard-header">
+              <div class="admin-title-section">
+                <h2>Admin Control Panel</h2>
+                <span class="admin-badge-role">System Administrator</span>
+              </div>
+              <div class="admin-header-actions">
+                <button class="btn btn-secondary btn-sm" onclick="adminLogout()">
+                  <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+              </div>
+            </div>
+
+            <!-- Admin Sub-navigation tabs -->
+            <div class="admin-nav-tabs">
+              <button class="admin-tab-btn active" id="btn-admin-tab-stats" onclick="switchAdminTab('stats')">
+                <i class="fa-solid fa-chart-line"></i> Statistics
+              </button>
+              <button class="admin-tab-btn" id="btn-admin-tab-products" onclick="switchAdminTab('products')">
+                <i class="fa-solid fa-shoe-prints"></i> Products CRUD
+              </button>
+              <button class="admin-tab-btn" id="btn-admin-tab-orders" onclick="switchAdminTab('orders')">
+                <i class="fa-solid fa-clipboard-list"></i> Customer Orders
+              </button>
+            </div>
+
+            <!-- TAB 1: STATISTICS -->
+            <div class="admin-sub-tab-content active" id="admin-tab-stats">
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-icon" style="background-color: rgba(46, 204, 113, 0.15); color: #2ecc71;">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3 id="stat-total-revenue">₹0</h3>
+                    <p>Total Sales Revenue</p>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon" style="background-color: rgba(52, 152, 219, 0.15); color: #3498db;">
+                    <i class="fa-solid fa-dolly"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3 id="stat-total-orders">0</h3>
+                    <p>Total Orders Placed</p>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon" style="background-color: rgba(230, 126, 34, 0.15); color: #e67e22;">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                  </div>
+                  <div class="stat-details">
+                    <h3 id="stat-catalog-size">0</h3>
+                    <p>Active Catalog Items</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Products / Sales Chart mockup or table -->
+              <div class="admin-recent-activity">
+                <h3 class="admin-panel-title">System Status</h3>
+                <div class="status-summary-card">
+                  <p>Database Status: <span class="badge-status" id="db-status-badge">Checking...</span></p>
+                  <p>Active Server Mode: <span class="badge-status delivered" style="background: rgba(46,204,113,0.15); color:#2ecc71;">Option A (Full-Stack Express)</span></p>
+                  <p>Last Sync Time: <span id="last-sync-time" style="color: var(--text-muted);">Never</span></p>
+                  <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary btn-sm" onclick="syncAdminData()"><i class="fa-solid fa-arrows-rotate"></i> Sync Data</button>
+                    <button class="btn btn-primary btn-sm" onclick="seedDatabase()"><i class="fa-solid fa-database"></i> Force Database Seed</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: PRODUCTS CRUD -->
+            <div class="admin-sub-tab-content" id="admin-tab-products" style="display: none;">
+              <div class="admin-panel-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <h3 class="admin-panel-title" style="margin:0;">Catalog Inventory</h3>
+                <button class="btn btn-primary btn-sm" onclick="openAddProductModal()">
+                  <i class="fa-solid fa-plus"></i> Add New Product
+                </button>
+              </div>
+              <div class="admin-table-responsive">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Product Info</th>
+                      <th>Brand</th>
+                      <th>Category</th>
+                      <th>Price</th>
+                      <th>Discount</th>
+                      <th>Flags</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-products-table-body">
+                    <!-- Dynamic Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 3: CUSTOMER ORDERS -->
+            <div class="admin-sub-tab-content" id="admin-tab-orders" style="display: none;">
+              <h3 class="admin-panel-title">Order Processing Queue</h3>
+              <div class="admin-table-responsive">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Items Bought</th>
+                      <th>Total Amount</th>
+                      <th>Status</th>
+                      <th>Update Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-orders-table-body">
+                    <!-- Dynamic Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
     </main>
 
@@ -612,6 +766,93 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ADMIN PRODUCT EDIT/ADD MODAL OVERLAY -->
+  <div class="modal-overlay" id="admin-product-modal" onclick="closeAdminProductModalOnOverlay(event)">
+    <div class="modal-container admin-form-modal" style="max-height: 90vh; overflow-y: auto; max-width: 700px;">
+      <button class="modal-close-btn" onclick="closeAdminProductModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <h3 class="modal-title" id="admin-product-modal-title" style="margin-top:0; margin-bottom: 1.5rem; color: var(--primary);">Add New Product</h3>
+      <form id="admin-product-form" onsubmit="handleProductFormSubmit(event)">
+        <input type="hidden" id="admin-form-id">
+        
+        <div class="profile-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="admin-form-name">Product Name *</label>
+            <input type="text" id="admin-form-name" class="form-control" required placeholder="e.g. Air Max Pulse 2">
+          </div>
+          <div class="form-group">
+            <label for="admin-form-brand">Brand Name *</label>
+            <input type="text" id="admin-form-brand" class="form-control" required placeholder="e.g. Nike">
+          </div>
+          <div class="form-group">
+            <label for="admin-form-category">Category *</label>
+            <select id="admin-form-category" class="form-control" required>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="kids">Kids</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="admin-form-subcategory">Sub-Category *</label>
+            <input type="text" id="admin-form-subcategory" class="form-control" required placeholder="e.g. Sneakers">
+          </div>
+          <div class="form-group">
+            <label for="admin-form-price">Price (₹) *</label>
+            <input type="number" id="admin-form-price" class="form-control" required min="0" placeholder="e.g. 10800">
+          </div>
+          <div class="form-group">
+            <label for="admin-form-discount">Discount (%)</label>
+            <input type="number" id="admin-form-discount" class="form-control" min="0" max="100" value="0">
+          </div>
+          <div class="form-group">
+            <label for="admin-form-rating">Rating (1.0 to 5.0)</label>
+            <input type="number" id="admin-form-rating" class="form-control" min="1.0" max="5.0" step="0.1" value="4.5">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label for="admin-form-image">Product Image URL *</label>
+            <input type="text" id="admin-form-image" class="form-control" required placeholder="e.g. https://images.unsplash.com/...">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label for="admin-form-description">Description *</label>
+            <textarea id="admin-form-description" class="form-control" required style="min-height: 80px;" placeholder="Write product description here..."></textarea>
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label for="admin-form-sizes">Available Sizes (comma-separated numbers) *</label>
+            <input type="text" id="admin-form-sizes" class="form-control" required placeholder="e.g. 7, 8, 9, 10, 11">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label for="admin-form-colors">Colors (Format: Name:Hex, comma separated) *</label>
+            <input type="text" id="admin-form-colors" class="form-control" required placeholder="e.g. Neon Red:#ff3b30, Slate Grey:#5a6b7c">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label for="admin-form-occasions">Occasions (comma-separated strings)</label>
+            <input type="text" id="admin-form-occasions" class="form-control" placeholder="e.g. Casual, Sports, Formal">
+          </div>
+        </div>
+
+        <div style="margin: 1.5rem 0; display: flex; gap: 1.5rem; flex-wrap: wrap;">
+          <label class="filter-checkbox-label" style="display: flex; gap: 0.5rem; align-items: center; cursor: pointer;">
+            <input type="checkbox" id="admin-form-trending" class="filter-checkbox">
+            Trending Shoe
+          </label>
+          <label class="filter-checkbox-label" style="display: flex; gap: 0.5rem; align-items: center; cursor: pointer;">
+            <input type="checkbox" id="admin-form-newarrival" class="filter-checkbox">
+            New Arrival
+          </label>
+          <label class="filter-checkbox-label" style="display: flex; gap: 0.5rem; align-items: center; cursor: pointer;">
+            <input type="checkbox" id="admin-form-bestseller" class="filter-checkbox">
+            Best Seller
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeAdminProductModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Product</button>
+        </div>
+      </form>
     </div>
   </div>
 

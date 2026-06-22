@@ -678,4 +678,4 @@ function generateProducts() {
   ];
 }
 
-const PRODUCTS = generateProducts();
+let PRODUCTS = generateProducts();
