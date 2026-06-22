@@ -1,0 +1,23 @@
+=== WOMEN COLLECTION PRODUCTS ===
+w-nike-1 | Nike Bella Block Heels | Heels | images/heels_yellow.jpg
+w-adi-1 | Adidas Original Ankle Sandals | Sandals | https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&auto=format&fit=crop
+w-puma-1 | Puma Cali Dream Wedges | Heels | images/heels_black.jpg
+w-bata-1 | Bata Pointed Toe Flats | Flats | https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&auto=format&fit=crop
+w-wood-1 | Woodland Trail Active Sandals | Sandals | https://images.unsplash.com/photo-1603808033192-082d6919d3e1?w=600&auto=format&fit=crop
+w-ske-1 | Skechers Cleo Ballet Flats | Flats | https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=600&auto=format&fit=crop
+w-croc-1 | Crocs Brooklyn Wedge Heel | Heels | images/heels_blue.jpg
+w-nike-2 | Nike Court Slide Sandals | Sandals | images/skechers_sandal.png
+w-adi-2 | Adidas Stan Bow Ballerinas | Flats | https://images.unsplash.com/photo-1556906781-9a412961c28c?w=600&auto=format&fit=crop
+w-wood-2 | Woodland Camel Suede Flats | Flats | https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?w=600&auto=format&fit=crop
+
+=== KIDS COLLECTION PRODUCTS ===
+k-nike-1 | Nike Air Max Junior | Sports Shoes | images/kids_nike_blue.png
+k-adi-1 | Adidas Tensaur Velcro Sport | Sports Shoes | images/kids_adidas_black.png
+k-puma-1 | Puma RS-Fast Junior | Sports Shoes | images/kids_puma_pink.png
+k-bata-1 | Bata Smart Uniform School Shoes | School Shoes | https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=600&auto=format&fit=crop
+k-wood-1 | Woodland Junior Trail Boots | Slippers | images/kids_hightop.png
+k-ske-1 | Skechers Mega-Craft Pixel | Casual Shoes | images/kids_nike_black.png
+k-croc-1 | Crocs Classic Kids Clog | Slippers | images/kids_navy.png
+k-nike-2 | Nike Force 1 Low Kid | Casual Shoes | images/kids_blue_yellow.png
+k-adi-2 | Adidas Superstar Elastic Kids | Casual Shoes | images/kids_canvas_black.png
+k-puma-2 | Puma Carina Velcro Kid | Casual Shoes | images/kids_pink.png

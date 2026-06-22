@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FootWear Hub | Premium Footwear E-Commerce</title>
+  <!-- SEO Tags -->
+  <meta name="description" content="Discover premium athletic, lifestyle, and formal footwear at FootWear Hub. Get customized recommendations instantly based on your style, size, and brand preference.">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css?v=108">
+</head>
+<body>
+
+  <div class="app-wrapper">
+    <!-- TOP HEADER -->
+    <header class="top-header" id="main-header">
+      <div class="container header-container">
+        
+        <!-- Drawer Toggle for Mobile -->
+        <button class="action-btn" id="drawer-toggle-btn" style="display: flex;" aria-label="Open Navigation Drawer">
+          <i class="fa-solid fa-bars-staggered"></i>
+        </button>
+
+        <!-- Logo -->
+        <div class="logo-section">
+          <a href="#" onclick="navigateTo('home'); return false;" class="logo-section">
+            <i class="fa-solid fa-shoe-prints logo-icon"></i>
+            <span class="logo-text">FootWear Hub</span>
+          </a>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="global-search-input" class="search-input" placeholder="Search brands, sneakers, sports shoes, heels...">
+        </div>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <!-- Notification Bell -->
+          <div style="position: relative;">
+            <button class="action-btn" id="notif-btn" aria-label="View Notifications">
+              <i class="fa-regular fa-bell"></i>
+              <span class="action-badge" id="notif-badge">3</span>
+            </button>
+            
+            <!-- Notification Dropdown -->
+            <div class="notification-dropdown" id="notif-dropdown">
+              <div class="notif-header">
+                <h4>Notifications</h4>
+                <button class="btn-sm" style="color: var(--primary); font-size: 0.8rem;" onclick="clearNotifications()">Clear All</button>
+              </div>
+              <div class="notif-list" id="notif-list-container">
+                <div class="notif-item">
+                  <div class="notif-title">🔥 Seasonal Sale Is Live!</div>
+                  <div class="notif-desc" style="color: var(--text-muted); font-size: 0.8rem;">Use code <strong>FW10</strong> for 10% off storewide.</div>
+                  <div class="notif-time">2 mins ago</div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-title">👟 Nike Air Max Restocked</div>
+                  <div class="notif-desc" style="color: var(--text-muted); font-size: 0.8rem;">Your favorite Nike styles are back in stock.</div>
+                  <div class="notif-time">1 hour ago</div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-title">🎉 Order Confirmed</div>
+                  <div class="notif-desc" style="color: var(--text-muted); font-size: 0.8rem;">Your footwear package is ready for courier delivery.</div>
+                  <div class="notif-time">Yesterday</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wishlist Badge -->
+          <button class="action-btn" onclick="navigateTo('wishlist')" aria-label="View Wishlist">
+            <i class="fa-regular fa-heart"></i>
+            <span class="action-badge" id="wishlist-badge">0</span>
+          </button>
+
+          <!-- Cart Badge -->
+          <button class="action-btn" onclick="navigateTo('cart')" aria-label="View Shopping Cart">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="action-badge" id="cart-badge">0</span>
+          </button>
+
+          <!-- Profile (Quick Link) -->
+          <button class="action-btn" onclick="navigateTo('profile')" aria-label="View Profile">
+            <i class="fa-regular fa-user"></i>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- NAVIGATION BAR (DESKTOP) -->
+    <nav class="desktop-nav">
+      <div class="container">
+        <ul class="nav-container">
+          <li><a href="#" class="nav-link active" data-page="home" onclick="navigateTo('home'); return false;">Home</a></li>
+          <li><a href="#" class="nav-link" data-page="men" onclick="navigateToCategory('men'); return false;">Men</a></li>
+          <li><a href="#" class="nav-link" data-page="women" onclick="navigateToCategory('women'); return false;">Women</a></li>
+          <li><a href="#" class="nav-link" data-page="kids" onclick="navigateToCategory('kids'); return false;">Kids</a></li>
+          <li><a href="#" class="nav-link" data-page="trending" onclick="navigateToCategory('trending'); return false;">Trending</a></li>
+          <li><a href="#" class="nav-link" data-page="wishlist" onclick="navigateTo('wishlist'); return false;">Wishlist</a></li>
+          <li><a href="#" class="nav-link" data-page="orders" onclick="navigateTo('orders'); return false;">Orders</a></li>
+          <li><a href="#" class="nav-link" data-page="profile" onclick="navigateTo('profile'); return false;">Profile</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- MOBILE NAVIGATION SIDEBAR DRAWER -->
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+    <aside class="sidebar-drawer" id="sidebar-drawer">
+      <div class="drawer-header">
+        <div class="logo-section">
+          <i class="fa-solid fa-shoe-prints logo-icon"></i>
+          <span class="logo-text">FootWear Hub</span>
+        </div>
+        <button class="drawer-close" id="drawer-close-btn" aria-label="Close Navigation Drawer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <ul class="drawer-nav">
+        <li><a href="#" class="drawer-link active" data-page="home" onclick="navigateTo('home'); return false;"><i class="fa-solid fa-house"></i> Home</a></li>
+        <li><a href="#" class="drawer-link" data-page="men" onclick="navigateToCategory('men'); return false;"><i class="fa-solid fa-mars"></i> Men's Catalog</a></li>
+        <li><a href="#" class="drawer-link" data-page="women" onclick="navigateToCategory('women'); return false;"><i class="fa-solid fa-venus"></i> Women's Catalog</a></li>
+        <li><a href="#" class="drawer-link" data-page="kids" onclick="navigateToCategory('kids'); return false;"><i class="fa-solid fa-child"></i> Kids' Catalog</a></li>
+        <li><a href="#" class="drawer-link" data-page="trending" onclick="navigateToCategory('trending'); return false;"><i class="fa-solid fa-fire"></i> Trending</a></li>
+        <li><a href="#" class="drawer-link" data-page="wishlist" onclick="navigateTo('wishlist'); return false;"><i class="fa-solid fa-heart"></i> Wishlist</a></li>
+        <li><a href="#" class="drawer-link" data-page="orders" onclick="navigateTo('orders'); return false;"><i class="fa-solid fa-clipboard-list"></i> My Orders</a></li>
+        <li><a href="#" class="drawer-link" data-page="profile" onclick="navigateTo('profile'); return false;"><i class="fa-solid fa-user-gear"></i> My Profile</a></li>
+      </ul>
+      <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+        &copy; 2026 FootWear Hub.
+      </div>
+    </aside>
+
+    <!-- MAIN VIEWS PANEL -->
+    <main class="main-content">
+      <div class="container">
+
+        <!-- 1. HOMEPAGE VIEW -->
+        <section class="page-view active" id="view-home">
+          <!-- Hero Banner Section -->
+          <div class="hero-section">
+            <div class="hero-layout">
+              <div class="hero-content">
+                <span class="hero-subtitle">New Arrival Season</span>
+                <h1 class="hero-title text-gradient">Elevate Your Step, Define Style</h1>
+                <p class="hero-desc">Explore professional-grade sports runners, gorgeous heels, premium leather loafers, and comfortable everyday wear built for performance.</p>
+                <div class="hero-btns">
+                  <button class="btn btn-primary btn-lg" onclick="navigateToCategory('men')">Shop Latest Collections <i class="fa-solid fa-arrow-right"></i></button>
+                  <button class="btn btn-secondary btn-lg" onclick="scrollToSection('trending-section')">Explore Trends <i class="fa-solid fa-fire"></i></button>
+                </div>
+              </div>
+              <div class="hero-image-wrapper">
+                <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&auto=format&fit=crop" class="hero-shoe-img" alt="Featured Nike Sport Shoe">
+              </div>
+            </div>
+          </div>
+
+          <!-- Trending Section -->
+          <div id="trending-section" style="margin-bottom: 3rem;">
+            <div class="shop-header">
+              <div>
+                <h2>Trending Footwear</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">The most popular choices chosen by our customers</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="navigateToCategory('trending')">View All Trending</button>
+            </div>
+            <div class="products-grid" id="trending-home-container">
+              <!-- JS Injected Cards -->
+            </div>
+          </div>
+
+          <!-- Recommended Brands Section -->
+          <div style="margin-bottom: 2rem;">
+            <h2>Shop By Brands</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Explore curated shoes from globally recognized footwear manufacturers</p>
+            <div class="brand-grid">
+              <div class="brand-card" onclick="filterByBrand('Nike')">
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&auto=format&fit=crop" class="brand-card-img" alt="Nike">
+                <span class="brand-card-name">Nike</span>
+              </div>
+              <div class="brand-card" onclick="filterByBrand('Adidas')">
+                <img src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=150&auto=format&fit=crop" class="brand-card-img" alt="Adidas">
+                <span class="brand-card-name">Adidas</span>
+              </div>
+              <div class="brand-card" onclick="filterByBrand('Puma')">
+                <img src="https://images.unsplash.com/photo-1597045566677-8cf032ed6634?w=150&auto=format&fit=crop" class="brand-card-img" alt="Puma">
+                <span class="brand-card-name">Puma</span>
+              </div>
+              <div class="brand-card" onclick="filterByBrand('Bata')">
+                <img src="https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=150&auto=format&fit=crop" class="brand-card-img" alt="Bata">
+                <span class="brand-card-name">Bata</span>
+              </div>
+              <div class="brand-card" onclick="filterByBrand('Woodland')">
+                <img src="https://images.unsplash.com/photo-1575537302964-96cd47c06b1b?w=150&auto=format&fit=crop" class="brand-card-img" alt="Woodland">
+                <span class="brand-card-name">Woodland</span>
+              </div>
+              <div class="brand-card" onclick="filterByBrand('Skechers')">
+                <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=150&auto=format&fit=crop" class="brand-card-img" alt="Skechers">
+                <span class="brand-card-name">Skechers</span>
+              </div>
+              <div class="brand-card" onclick="filterByBrand('Crocs')">
+                <img src="https://images.unsplash.com/photo-1603487742131-4160ec999306?w=150&auto=format&fit=crop" class="brand-card-img" alt="Crocs">
+                <span class="brand-card-name">Crocs</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. CATALOG / SHOP PAGE VIEW -->
+        <section class="page-view" id="view-shop">
+          <div class="shop-layout">
+            
+            <!-- Sidebar Filters -->
+            <aside class="filters-sidebar">
+              
+              <div class="filter-section">
+                <div class="filter-title">
+                  <strong>Categories</strong>
+                  <a href="#" style="font-size: 0.8rem; color: var(--primary);" onclick="clearAllFilters(); return false;">Reset All</a>
+                </div>
+                <div class="filter-options">
+                  <label class="filter-checkbox-label">
+                    <input type="checkbox" class="filter-checkbox" value="men" id="cat-men-check" onchange="applyFilters()">
+                    Men Footwear
+                  </label>
+                  <label class="filter-checkbox-label">
+                    <input type="checkbox" class="filter-checkbox" value="women" id="cat-women-check" onchange="applyFilters()">
+                    Women Footwear
+                  </label>
+                  <label class="filter-checkbox-label">
+                    <input type="checkbox" class="filter-checkbox" value="kids" id="cat-kids-check" onchange="applyFilters()">
+                    Kids Footwear
+                  </label>
+                </div>
+              </div>
+
+              <!-- Brand Filters -->
+              <div class="filter-section">
+                <div class="filter-title"><strong>Brands</strong></div>
+                <div class="filter-options" id="brand-filters-container">
+                  <!-- Dynamically populated brands -->
+                </div>
+              </div>
+
+              <!-- Price Range Filter -->
+              <div class="filter-section">
+                <div class="filter-title">
+                  <strong>Price Range</strong>
+                  <span id="price-filter-val" style="font-weight: 700; color: var(--primary);">₹16,000</span>
+                </div>
+                <input type="range" class="rec-slider" id="price-slider-input" min="1200" max="16000" step="100" value="16000" oninput="updatePriceFilterValue(this.value)">
+                <div class="slider-values" style="margin-top: 0.5rem;">
+                  <span>Min: ₹1,200</span>
+                  <span>Max: ₹16,000</span>
+                </div>
+              </div>
+
+              <!-- Size Filters -->
+              <div class="filter-section">
+                <div class="filter-title"><strong>Sizes</strong></div>
+                <div class="filter-sizes-grid" id="size-filters-container">
+                  <!-- JS generated size buttons -->
+                </div>
+              </div>
+
+              <!-- Color Filters -->
+              <div class="filter-section">
+                <div class="filter-title"><strong>Colors</strong></div>
+                <div class="filter-colors-grid" id="color-filters-container">
+                  <!-- JS generated color dots -->
+                </div>
+              </div>
+
+              <!-- Rating Filter -->
+              <div class="filter-section">
+                <div class="filter-title"><strong>Min Rating</strong></div>
+                <div class="filter-options">
+                  <label class="filter-checkbox-label">
+                    <input type="radio" name="rating-filter" class="filter-checkbox" value="4.5" onchange="applyFilters()">
+                    <i class="fa-solid fa-star" style="color: #ffcc00;"></i> 4.5 & Above
+                  </label>
+                  <label class="filter-checkbox-label">
+                    <input type="radio" name="rating-filter" class="filter-checkbox" value="4.0" onchange="applyFilters()">
+                    <i class="fa-solid fa-star" style="color: #ffcc00;"></i> 4.0 & Above
+                  </label>
+                  <label class="filter-checkbox-label">
+                    <input type="radio" name="rating-filter" class="filter-checkbox" value="0" checked onchange="applyFilters()">
+                    All Ratings
+                  </label>
+                </div>
+              </div>
+
+              <!-- Special Flags -->
+              <div class="filter-section">
+                <div class="filter-title"><strong>Trending & New</strong></div>
+                <div class="filter-options">
+                  <label class="filter-checkbox-label">
+                    <input type="checkbox" class="filter-checkbox" id="flag-trending" onchange="applyFilters()">
+                    Trending Styles
+                  </label>
+                  <label class="filter-checkbox-label">
+                    <input type="checkbox" class="filter-checkbox" id="flag-new" onchange="applyFilters()">
+                    New Arrivals
+                  </label>
+                  <label class="filter-checkbox-label">
+                    <input type="checkbox" class="filter-checkbox" id="flag-bestseller" onchange="applyFilters()">
+                    Best Sellers
+                  </label>
+                </div>
+              </div>
+
+            </aside>
+
+            <!-- Product Grid Area -->
+            <div class="shop-grid-area">
+              <div class="shop-header">
+                <div class="results-count">
+                  Showing <span id="current-items-count">0</span> Footwear styles
+                </div>
+                <div class="sort-container">
+                  <label for="sort-select" style="font-size: 0.9rem; color: var(--text-muted);"><i class="fa-solid fa-sort"></i> Sort By:</label>
+                  <select id="sort-select" class="sort-select" onchange="applyFilters()">
+                    <option value="popular">Popularity / Rating</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="discount">Biggest Discount</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Grid -->
+              <div class="products-grid" id="catalog-products-container">
+                <!-- JS Generated Cards -->
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 3. WISHLIST PAGE VIEW -->
+        <section class="page-view" id="view-wishlist">
+          <div class="shop-header">
+            <h2>Your Saved Wishlist</h2>
+            <button class="btn btn-secondary btn-sm" id="wishlist-clear-btn" onclick="clearWishlist()">Clear Wishlist</button>
+          </div>
+          
+          <!-- Empty State -->
+          <div class="wishlist-empty" id="wishlist-empty-state" style="display: none;">
+            <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&auto=format&fit=crop" class="empty-state-img" alt="Saved Footwear Favorites">
+            <h3>Your Wishlist is Empty</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Explore our high-quality shoe collection and click the heart icon on any shoe card to save your favorites.</p>
+            <button class="btn btn-primary" onclick="navigateToCategory('trending')">Explore Trends</button>
+          </div>
+
+          <!-- Grid of items -->
+          <div class="products-grid" id="wishlist-grid-container">
+            <!-- JS populated -->
+          </div>
+        </section>
+
+        <!-- 4. CART PAGE VIEW -->
+        <section class="page-view" id="view-cart">
+          <div class="shop-header">
+            <h2>Shopping Cart</h2>
+            <button class="btn btn-secondary btn-sm" onclick="clearCart()">Clear Cart</button>
+          </div>
+
+          <!-- Empty State -->
+          <div class="cart-empty" id="cart-empty-state" style="display: none;">
+            <img src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&auto=format&fit=crop" class="empty-state-img" alt="Empty Shopping Cart Footwear">
+            <h3>Your Cart is Empty</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">You haven't added any footwear items to your shopping cart yet.</p>
+            <button class="btn btn-primary" onclick="navigateTo('home')">Go Back to Shopping</button>
+          </div>
+
+          <div class="cart-layout" id="cart-content-layout">
+            <!-- Cart Items Grid -->
+            <div class="cart-items-panel" id="cart-items-list-container">
+              <!-- JS populated rows -->
+            </div>
+
+            <!-- Cart Summary Panel -->
+            <div class="cart-summary">
+              <h3 class="summary-title">Order Summary</h3>
+              
+              <div class="summary-row">
+                <span>Cart Subtotal</span>
+                <span id="summary-subtotal">₹0.00</span>
+              </div>
+              <div class="summary-row">
+                <span>Discount / Promo</span>
+                <span id="summary-discount" style="color: var(--accent);">₹0.00</span>
+              </div>
+              <div class="summary-row">
+                <span>Estimated Shipping</span>
+                <span id="summary-shipping">₹800.00</span>
+              </div>
+              
+              <div class="summary-row total">
+                <span>Grand Total</span>
+                <span id="summary-total">₹0.00</span>
+              </div>
+
+              <!-- Promo Code -->
+              <div style="margin-bottom: 1.5rem;">
+                <label for="coupon-input" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Promo Code</label>
+                <div class="coupon-container">
+                  <input type="text" id="coupon-input" class="coupon-input" placeholder="e.g. FW10">
+                  <button class="btn btn-primary btn-sm" onclick="applyPromoCode()">Apply</button>
+                </div>
+                <div id="coupon-message" style="font-size: 0.8rem; font-weight: bold; margin-top: -0.8rem; margin-bottom: 0.8rem; display: none;"></div>
+                <small style="color: var(--text-muted);">Try coupon code: <strong>FW10</strong> (10% off) or <strong>FREESHIP</strong> (Free Shipping)</small>
+              </div>
+
+              <!-- Check out -->
+              <button class="btn btn-primary btn-lg btn-block" onclick="processCheckout()"><i class="fa-solid fa-credit-card"></i> Proceed to Checkout</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. ORDERS HISTORY PAGE VIEW -->
+        <section class="page-view" id="view-orders">
+          <div class="shop-header">
+            <h2>Order History & Status</h2>
+          </div>
+          
+          <div class="orders-list" id="orders-list-container">
+            <!-- JS dynamic lists -->
+          </div>
+        </section>
+
+        <!-- 6. USER PROFILE PAGE VIEW -->
+        <section class="page-view" id="view-profile">
+          <div class="profile-grid">
+            
+            <!-- Profile Info Panel Sidebar -->
+            <aside class="profile-sidebar">
+              <div class="profile-avatar">
+                <i class="fa-regular fa-user"></i>
+              </div>
+              <h3 class="profile-name" id="profile-card-name">Alex Mercer</h3>
+              <p class="profile-email" id="profile-card-email">alex.mercer@gmail.com</p>
+              
+              <div class="profile-tabs">
+                <button class="profile-tab-btn active" onclick="switchProfileTab('details')"><i class="fa-solid fa-id-card"></i> Account Info</button>
+                <button class="profile-tab-btn" onclick="switchProfileTab('address')"><i class="fa-solid fa-map-location-dot"></i> Saved Addresses</button>
+                <button class="profile-tab-btn" onclick="switchProfileTab('settings')"><i class="fa-solid fa-sliders"></i> Settings</button>
+              </div>
+            </aside>
+
+            <!-- Profile Interactive Forms -->
+            <div class="profile-main-panel">
+              
+              <!-- Tab 1: Account Info -->
+              <div class="profile-sub-tab active" id="profile-tab-details">
+                <h3 class="profile-section-title">Personal Account Details</h3>
+                <form id="profile-details-form" onsubmit="saveProfileDetails(event)">
+                  <div class="profile-form-grid">
+                    <div class="form-group">
+                      <label for="prof-name">Full Name</label>
+                      <input type="text" id="prof-name" class="form-control" value="Alex Mercer" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="prof-email">Email Address</label>
+                      <input type="email" id="prof-email" class="form-control" value="alex.mercer@gmail.com" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="prof-phone">Mobile Phone</label>
+                      <input type="text" id="prof-phone" class="form-control" value="+1 (555) 389-2092">
+                    </div>
+                    <div class="form-group">
+                      <label for="prof-birthday">Birthday</label>
+                      <input type="date" id="prof-birthday" class="form-control" value="1995-08-22">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                      <label for="prof-bio">Profile Bio / Preferences</label>
+                      <textarea id="prof-bio" class="form-control" style="resize: vertical; min-height: 80px;">Love retro running sneakers, hiking boots, and sleek formals. Footwear enthusiast since 2018.</textarea>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;"><i class="fa-regular fa-floppy-disk"></i> Save Profile Details</button>
+                </form>
+              </div>
+
+              <!-- Tab 2: Saved Address -->
+              <div class="profile-sub-tab" id="profile-tab-address" style="display: none;">
+                <h3 class="profile-section-title">Shipping & Billing Address</h3>
+                <form id="profile-address-form" onsubmit="saveProfileAddress(event)">
+                  <div class="profile-form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                      <label for="addr-street">Street Address</label>
+                      <input type="text" id="addr-street" class="form-control" value="784 Skyline Heights Drive, Apt 4B" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="addr-city">City</label>
+                      <input type="text" id="addr-city" class="form-control" value="San Francisco" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="addr-state">State / Province</label>
+                      <input type="text" id="addr-state" class="form-control" value="California" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="addr-zip">Zip / Postal Code</label>
+                      <input type="text" id="addr-zip" class="form-control" value="94103" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="addr-country">Country</label>
+                      <input type="text" id="addr-country" class="form-control" value="United States" required>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;"><i class="fa-regular fa-floppy-disk"></i> Save Delivery Address</button>
+                </form>
+              </div>
+
+              <!-- Tab 3: Settings -->
+              <div class="profile-sub-tab" id="profile-tab-settings" style="display: none;">
+                <h3 class="profile-section-title">Application Control Settings</h3>
+                <div class="profile-form-grid" style="grid-template-columns: 1fr; gap: 1.5rem;">
+                  
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;">
+                    <div>
+                      <strong style="display: block;">Personalized AI Advisor</strong>
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">Let FootWear Hub auto-save sizes for instant recommendation checks.</span>
+                    </div>
+                    <label class="filter-checkbox-label">
+                      <input type="checkbox" class="filter-checkbox" checked>
+                    </label>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;">
+                    <div>
+                      <strong style="display: block;">Email Newsletters & Deals</strong>
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">Receive notification alerts when products in your wishlist drop in price.</span>
+                    </div>
+                    <label class="filter-checkbox-label">
+                      <input type="checkbox" class="filter-checkbox" checked>
+                    </label>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <strong style="display: block;">High Contrast Obsidian UI</strong>
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">Render highcontrast layouts for better accessibility.</span>
+                    </div>
+                    <label class="filter-checkbox-label">
+                      <input type="checkbox" class="filter-checkbox">
+                    </label>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- FLOATING BOTTOM MENU (MOBILE INTERACTION) -->
+    <div class="floating-bottom-menu" id="floating-menu">
+      <button class="bottom-menu-btn active" id="btn-float-home" onclick="navigateTo('home')">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </button>
+      <button class="bottom-menu-btn" id="btn-float-categories" onclick="navigateToCategory('men')">
+        <i class="fa-solid fa-grip"></i>
+        <span>Catalog</span>
+      </button>
+      <button class="bottom-menu-btn" id="btn-float-wishlist" onclick="navigateTo('wishlist')">
+        <i class="fa-solid fa-heart"></i>
+        <span class="action-badge" id="float-wishlist-badge" style="top: 0; right: 8px; font-size: 0.6rem; width: 16px; height: 16px;">0</span>
+        <span>Wishlist</span>
+      </button>
+      <button class="bottom-menu-btn" id="btn-float-cart" onclick="navigateTo('cart')">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span class="action-badge" id="float-cart-badge" style="top: 0; right: 8px; font-size: 0.6rem; width: 16px; height: 16px;">0</span>
+        <span>Cart</span>
+      </button>
+      <button class="bottom-menu-btn" id="btn-float-profile" onclick="navigateTo('profile')">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- PRODUCT DETAILS OVERLAY MODAL -->
+  <div class="modal-overlay" id="product-detail-modal" onclick="closeProductDetailModalOnOverlay(event)">
+    <div class="modal-container">
+      
+      <!-- Close Button -->
+      <button class="modal-close-btn" onclick="closeProductDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Main Content Grid -->
+      <div class="modal-content-grid" id="modal-content-grid-area">
+        <!-- JS Injected Content -->
+      </div>
+
+      <!-- Related Products Section -->
+      <div class="related-products-section">
+        <h3 class="related-title">You Might Also Like</h3>
+        <div class="related-grid" id="related-products-container">
+          <!-- Related product cards go here -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER FOR FLOATING ALERTS -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="products_v2.js?v=300"></script>
+  <script src="app_v2.js?v=300"></script>
+</body>
+</html>
